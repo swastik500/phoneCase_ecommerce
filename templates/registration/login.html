@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block title %}Login | CaseHaven{% endblock %}
+
+{% block content %}
+<div class="container mt-5 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card bg-dark border-secondary shadow-lg">
+                <div class="card-header bg-transparent border-secondary text-center py-4">
+                    <h3 class="fw-bold text-white mb-0">Welcome Back</h3>
+                    <p class="text-muted small mb-0">Login to continue shopping</p>
+                </div>
+                <div class="card-body p-4">
+
+                    <form method="post">
+                        {% csrf_token %}
+
+                        {% if form.errors %}
+                        <div class="alert alert-danger small p-2 mb-3">
+                            <i class="fa-solid fa-circle-exclamation me-1"></i> Invalid username or password.
+                        </div>
+                        {% endif %}
+
+                        <div class="mb-3">
+                            <label class="form-label text-white small fw-bold">Username</label>
+                            <input type="text" name="username" class="form-control bg-dark text-white border-secondary" required autofocus>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label text-white small fw-bold">Password</label>
+                            <input type="password" name="password" class="form-control bg-dark text-white border-secondary" required>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-brand btn-lg fw-bold py-2 shadow">
+                                Login
+                            </button>
+                        </div>
+
+                        <input type="hidden" name="next" value="{{ next }}">
+                    </form>
+
+                </div>
+                <div class="card-footer bg-transparent border-secondary text-center py-3">
+                    <p class="text-muted mb-0">
+                        New to CaseHaven?
+                        <a href="{% url 'accounts:signup' %}" class="text-primary fw-bold text-decoration-none">Create Account</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+
+{% block title %}Sign Up | CaseHaven{% endblock %}
+
+{% block content %}
+<div class="container mt-5 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card bg-dark border-secondary shadow-lg">
+                <div class="card-header bg-transparent border-secondary text-center py-4">
+                    <h3 class="fw-bold text-white mb-0">Create Account</h3>
+                    <p class="text-muted small mb-0">Join CaseHaven today</p>
+                </div>
+                <div class="card-body p-4">
+
+                    <form method="post">
+                        {% csrf_token %}
+
+                        <!-- Loop through form fields to style them manually -->
+                        {% for field in form %}
+                        <div class="mb-3">
+                            <label class="form-label text-white small fw-bold">{{ field.label }}</label>
+
+                            <!-- Add Bootstrap classes to the input field -->
+                            <div class="input-group">
+                                {{ field }}
+                            </div>
+
+                            <!-- Help Text -->
+                            {% if field.help_text %}
+                            <div class="form-text text-muted small" style="font-size: 0.75rem;">
+                                {{ field.help_text|safe }}
+                            </div>
+                            {% endif %}
+
+                            <!-- Errors -->
+                            {% if field.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ field.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+
+                        <div class="d-grid mt-4">
+                            <button type="submit" class="btn btn-brand btn-lg fw-bold py-2 shadow">
+                                Sign Up
+                            </button>
+                        </div>
+                    </form>
+
+                </div>
+                <div class="card-footer bg-transparent border-secondary text-center py-3">
+                    <p class="text-muted mb-0">
+                        Already have an account?
+                        <!-- THIS WAS THE ERROR FIX: Use 'accounts:login' -->
+                        <a href="{% url 'accounts:login' %}" class="text-primary fw-bold text-decoration-none">Log In</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Custom CSS to style the default Django form inputs -->
+<script>
+    // Simple script to add Bootstrap classes to Django rendered inputs
+    document.querySelectorAll('input').forEach(input => {
+        input.classList.add('form-control', 'bg-dark', 'text-white', 'border-secondary');
+    });
+</script>
+{% endblock %}

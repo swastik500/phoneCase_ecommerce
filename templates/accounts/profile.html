@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2 class="mb-4">My Account</h2>
+
+<div class="row">
+    <!-- Left Column: Addresses -->
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span>Saved Addresses</span>
+                <a href="{% url 'accounts:add_address' %}" class="btn btn-sm btn-primary">+ Add</a>
+            </div>
+            <div class="card-body">
+                {% if addresses %}
+                    {% for addr in addresses %}
+                    <div class="border rounded p-2 mb-2 {% if addr.is_default %}border-success{% else %}border-secondary{% endif %}">
+                        <strong>{{ addr.full_name }}</strong>
+                        {% if addr.is_default %}<span class="badge bg-success float-end">Default</span>{% endif %}
+                        <br>
+                        <small>{{ addr.city }}, {{ addr.state }}</small>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted">No addresses saved yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column: Order History -->
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">Order History</div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-dark table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Date</th>
+                                <th>Total</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for order in orders %}
+                            <tr>
+                                <td>#{{ order.id }}</td>
+                                <td>{{ order.created_at|date:"M d, Y" }}</td>
+                                <td>₹{{ order.total_amount }}</td>
+                                <td>
+                                    <span class="badge {% if order.status == 'PAID' %}bg-success{% elif order.status == 'PENDING' %}bg-warning{% else %}bg-secondary{% endif %}">
+                                        {{ order.get_status_display }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="{% url 'orders:order_detail' order.id %}" class="btn btn-sm btn-outline-info">View</a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center py-4">You haven't placed any orders yet.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

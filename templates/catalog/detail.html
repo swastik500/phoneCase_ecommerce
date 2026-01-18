@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5 mb-5">
+    <div class="row gx-lg-5">
+
+        <!-- Sticky Image Section -->
+        <div class="col-lg-6 mb-5 mb-lg-0">
+            <div class="sticky-top" style="top: 100px;">
+                <div class="rounded-5 overflow-hidden position-relative border border-secondary" style="background: radial-gradient(circle at center, #222 0%, #0f0f0f 100%); height: 600px; display: flex; align-items: center; justify-content: center;">
+                    {% if product.main_image %}
+                    <img src="{{ product.main_image.url }}" class="img-fluid" style="max-height: 80%; filter: drop-shadow(0 30px 60px rgba(0,0,0,0.8));" alt="{{ product.name }}" data-aos="zoom-in">
+                    {% else %}
+                    <i class="fa-solid fa-image fa-4x text-muted"></i>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Product Info Section -->
+        <div class="col-lg-6" data-aos="fade-up">
+            <nav aria-label="breadcrumb" class="mb-4">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'core:home' %}" class="text-muted">Home</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'catalog:product_list' %}" class="text-muted">Shop</a></li>
+                    <li class="breadcrumb-item active text-white" aria-current="page">{{ product.category.name }}</li>
+                </ol>
+            </nav>
+
+            <h1 class="display-4 fw-bold mb-2">{{ product.name }}</h1>
+
+            <div class="d-flex align-items-center gap-3 mb-4">
+                <h2 class="fw-bold m-0 text-white">₹{{ product.current_price }}</h2>
+                {% if product.stock > 0 %}
+                <span class="badge bg-success bg-opacity-25 text-success border border-success px-3 rounded-pill">In Stock</span>
+                {% else %}
+                <span class="badge bg-danger bg-opacity-25 text-danger border border-danger px-3 rounded-pill">Out of Stock</span>
+                {% endif %}
+            </div>
+
+            <p class="lead text-muted mb-5">{{ product.description_short }}</p>
+
+            <!-- Action Area -->
+            <div class="p-4 rounded-4 bg-dark border border-secondary mb-5">
+                <form action="{% url 'cart:cart_add' product.id %}" method="post">
+                    {% csrf_token %}
+                    <div class="row g-3">
+                        <div class="col-4">
+                            <div class="form-floating">
+                                <input type="number" name="quantity" class="form-control bg-black text-white border-secondary" id="qtyInput" value="1" min="1" max="{{ product.stock }}">
+                                <label for="qtyInput" class="text-muted">Qty</label>
+                            </div>
+                        </div>
+                        <div class="col-8">
+                            <button type="submit" class="btn btn-brand w-100 h-100 fs-5">Add to Cart</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Specs Accordion -->
+            <div class="accordion accordion-flush" id="productAccordion">
+                <div class="accordion-item bg-transparent border-bottom border-secondary">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed bg-transparent text-white shadow-none fw-bold fs-5 py-4" type="button" data-bs-toggle="collapse" data-bs-target="#desc">
+                            Description
+                        </button>
+                    </h2>
+                    <div id="desc" class="accordion-collapse collapse show" data-bs-parent="#productAccordion">
+                        <div class="accordion-body text-muted pt-0 pb-4">
+                            {{ product.description_long|linebreaks }}
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item bg-transparent border-bottom border-secondary">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed bg-transparent text-white shadow-none fw-bold fs-5 py-4" type="button" data-bs-toggle="collapse" data-bs-target="#ship">
+                            Shipping & Returns
+                        </button>
+                    </h2>
+                    <div id="ship" class="accordion-collapse collapse" data-bs-parent="#productAccordion">
+                        <div class="accordion-body text-muted pt-0 pb-4">
+                            <ul class="list-unstyled mb-0">
+                                <li class="mb-2"><i class="fa-solid fa-truck me-2"></i> Free shipping on orders over ₹999</li>
+                                <li class="mb-2"><i class="fa-solid fa-clock me-2"></i> Dispatched within 24 hours</li>
+                                <li><i class="fa-solid fa-rotate-left me-2"></i> 7-day easy return policy</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

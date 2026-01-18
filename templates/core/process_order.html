@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4 mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-white">Process Order #{{ order.id }}</h2>
+        <a href="{% url 'core:owner_dashboard' %}" class="btn btn-outline-light">Back to Dashboard</a>
+    </div>
+
+    <div class="row">
+        <!-- Order Info -->
+        <div class="col-md-6">
+            <div class="card bg-dark border-secondary mb-3">
+                <div class="card-header border-secondary text-white">Details</div>
+                <div class="card-body text-secondary">
+                    <p><strong>Customer:</strong> {{ order.full_name }}</p>
+                    <p><strong>Address:</strong> {{ order.city }}, {{ order.state }}</p>
+                    <p><strong>Items:</strong>
+                        {% for item in order.items.all %}
+                        {{ item.quantity }}x {{ item.product.name }},
+                        {% endfor %}
+                    </p>
+                    <p><strong>Total:</strong> ₹{{ order.total_amount }}</p>
+                    <p><strong>Payment:</strong> <span class="badge bg-success">{{ order.payment_status }}</span></p>
+                    <p><strong>Current Status:</strong> <span class="badge bg-primary">{{ order.order_status }}</span></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ACTIONS PANEL -->
+        <div class="col-md-6">
+            <div class="card bg-dark border-secondary">
+                <div class="card-header border-secondary text-white fw-bold">Actions</div>
+                <div class="card-body">
+
+                    <!-- 1. Confirm -->
+                    {% if order.order_status == 'ORDER_PLACED' %}
+                    <form method="post" class="mb-3">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="confirm">
+                        <button class="btn btn-primary w-100 py-2">
+                            <i class="fa-solid fa-check me-2"></i> Step 1: Confirm Order
+                        </button>
+                    </form>
+                    {% endif %}
+
+                    <!-- 2. Pack -->
+                    {% if order.order_status == 'CONFIRMED' %}
+                    <form method="post" class="mb-3">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="pack">
+                        <button class="btn btn-warning w-100 py-2 text-dark fw-bold">
+                            <i class="fa-solid fa-box-open me-2"></i> Step 2: Mark as Packed
+                        </button>
+                    </form>
+                    {% endif %}
+
+                    <!-- 3. Ship -->
+                    {% if order.order_status == 'PACKED' %}
+                    <form method="post" class="mb-3 border border-secondary p-3 rounded">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="ship">
+                        <h6 class="text-white">Step 3: Create Shipment</h6>
+                        <input type="text" name="courier_name" class="form-control bg-dark text-white border-secondary mb-2" placeholder="Courier Name (e.g. Delhivery)" required>
+                        <input type="text" name="tracking_id" class="form-control bg-dark text-white border-secondary mb-2" placeholder="Tracking ID" required>
+                        <button class="btn btn-info w-100 fw-bold">
+                            <i class="fa-solid fa-truck-fast me-2"></i> Mark as Shipped
+                        </button>
+                    </form>
+                    {% endif %}
+
+                    <!-- 4. Deliver -->
+                    {% if order.order_status == 'SHIPPED' or order.order_status == 'OUT_FOR_DELIVERY' %}
+                    <form method="post" class="mb-3">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="deliver">
+                        <button class="btn btn-success w-100 py-2 fw-bold">
+                            <i class="fa-solid fa-house-circle-check me-2"></i> Step 4: Mark as Delivered
+                        </button>
+                    </form>
+                    {% endif %}
+
+                    {% if order.order_status == 'DELIVERED' %}
+                    <div class="alert alert-success text-center">
+                        Order Completed Successfully!
+                    </div>
+                    {% endif %}
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

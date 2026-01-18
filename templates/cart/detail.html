@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2 class="mb-4">Shopping Cart</h2>
+
+{% if cart|length > 0 %}
+<div class="table-responsive">
+    <table class="table table-dark table-striped align-middle">
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Price</th>
+                <th>Quantity</th>
+                <th>Total</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in cart %}
+            {% with product=item.product %}
+            <tr>
+                <td>
+                    <a href="{{ product.get_absolute_url }}" class="text-decoration-none text-white fw-bold">
+                        {{ product.name }}
+                    </a>
+                </td>
+                <td>₹{{ item.price }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>₹{{ item.total_price }}</td>
+                <td>
+                    <a href="{% url 'cart:cart_remove' product.id %}" class="btn btn-sm btn-danger">Remove</a>
+                </td>
+            </tr>
+            {% endwith %}
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="3" class="text-end fw-bold fs-5">Total:</td>
+                <td colspan="2" class="fw-bold fs-5 text-primary">₹{{ cart.get_total_price }}</td>
+            </tr>
+        </tfoot>
+    </table>
+</div>
+
+<div class="d-flex justify-content-between mt-4">
+    <a href="{% url 'catalog:product_list' %}" class="btn btn-outline-light">Continue Shopping</a>
+    <a href="{% url 'orders:checkout' %}" class="btn btn-success btn-lg">Proceed to Checkout</a>
+</div>
+{% else %}
+<div class="text-center py-5">
+    <h3>Your cart is empty!</h3>
+    <a href="{% url 'catalog:product_list' %}" class="btn btn-primary mt-3">Start Shopping</a>
+</div>
+{% endif %}
+{% endblock %}

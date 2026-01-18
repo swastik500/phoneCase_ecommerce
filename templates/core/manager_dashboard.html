@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+
+{% block title %}Owner Dashboard | CaseHaven{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold">Shop Overview</h2>
+        <div>
+            <a href="/admin/" class="btn btn-outline-light me-2">Go to DB Admin</a>
+            <a href="{% url 'catalog:product_list' %}" class="btn btn-primary">+ Add Product (via Admin)</a>
+        </div>
+    </div>
+
+    <!-- KPI Cards -->
+    <div class="row g-4 mb-5">
+        <!-- Total Revenue -->
+        <div class="col-md-3">
+            <div class="card bg-success bg-opacity-10 border-success h-100">
+                <div class="card-body">
+                    <h6 class="text-uppercase text-muted small fw-bold">Total Revenue</h6>
+                    <h2 class="display-6 fw-bold text-success">₹{{ total_revenue }}</h2>
+                    <small class="text-muted"><i class="fa-solid fa-arrow-trend-up"></i> Lifetime Earnings</small>
+                </div>
+            </div>
+        </div>
+        <!-- Pending Shipments -->
+        <div class="col-md-3">
+            <div class="card bg-warning bg-opacity-10 border-warning h-100">
+                <div class="card-body">
+                    <h6 class="text-uppercase text-muted small fw-bold">Pending Shipments</h6>
+                    <h2 class="display-6 fw-bold text-warning">{{ pending_shipments }}</h2>
+                    <small class="text-muted">Orders Paid & Waiting to Ship</small>
+                </div>
+            </div>
+        </div>
+        <!-- Total Orders -->
+        <div class="col-md-3">
+            <div class="card bg-primary bg-opacity-10 border-primary h-100">
+                <div class="card-body">
+                    <h6 class="text-uppercase text-muted small fw-bold">Total Orders</h6>
+                    <h2 class="display-6 fw-bold text-primary">{{ total_orders }}</h2>
+                    <small class="text-muted">All time orders</small>
+                </div>
+            </div>
+        </div>
+        <!-- Low Stock -->
+        <div class="col-md-3">
+            <div class="card bg-danger bg-opacity-10 border-danger h-100">
+                <div class="card-body">
+                    <h6 class="text-uppercase text-muted small fw-bold">Low Stock Alerts</h6>
+                    <h2 class="display-6 fw-bold text-danger">{{ low_stock_count }}</h2>
+                    <small class="text-muted">Products with < 5 qty</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Recent Orders Table -->
+        <div class="col-lg-8">
+            <div class="card bg-dark border-secondary">
+                <div class="card-header bg-transparent border-secondary d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Recent Orders</h5>
+                    <a href="/admin/orders/order/" class="btn btn-sm btn-outline-light">View All</a>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-dark table-hover mb-0 align-middle">
+                        <thead>
+                            <tr class="text-muted small">
+                                <th>Order ID</th>
+                                <th>Customer</th>
+                                <th>Status</th>
+                                <th>Payment</th>
+                                <th>Amount</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for order in recent_orders %}
+                            <tr>
+                                <td>#{{ order.id }}</td>
+                                <td>
+                                    <div class="fw-bold">{{ order.full_name }}</div>
+                                    <div class="small text-muted">{{ order.email }}</div>
+                                </td>
+                                <td>
+                                    {% if order.order_status == 'CONFIRMED' %}
+                                    <span class="badge bg-primary">Confirmed</span>
+                                    {% elif order.order_status == 'SHIPPED' %}
+                                    <span class="badge bg-info text-dark">Shipped</span>
+                                    {% elif order.order_status == 'ORDER_PLACED' %}
+                                    <span class="badge bg-secondary">Draft</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary">{{ order.order_status }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if order.payment_status == 'PAID' %}
+                                    <span class="text-success small fw-bold"><i class="fa-solid fa-check-circle"></i> PAID</span>
+                                    {% else %}
+                                    <span class="text-warning small fw-bold"><i class="fa-solid fa-clock"></i> {{ order.payment_status }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>₹{{ order.total_amount }}</td>
+                                <td>
+                                    <a href="{% url 'orders:order_detail' order.id %}" class="btn btn-sm btn-outline-light"><i class="fa-solid fa-eye"></i></a>
+                                    <a href="{% url 'core:process_order' order.id %}" class="btn btn-sm btn-outline-primary" title="Process Order"><i class="fa-solid fa-list-check"></i></a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="6" class="text-center py-4 text-muted">No orders yet.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Payments / Alerts -->
+        <div class="col-lg-4">
+            <div class="card bg-dark border-secondary h-100">
+                <div class="card-header bg-transparent border-secondary">
+                    <h5 class="mb-0">Latest Payments</h5>
+                </div>
+                <ul class="list-group list-group-flush">
+                    {% for pay in recent_payments %}
+                    <li class="list-group-item bg-dark border-secondary text-white d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="small fw-bold">Order #{{ pay.order.id }}</div>
+                            <div class="small text-muted" style="font-size: 0.75rem;">{{ pay.gateway }}</div>
+                        </div>
+                        <div class="text-end">
+                            <div class="fw-bold text-success">₹{{ pay.amount }}</div>
+                            <span class="badge bg-success" style="font-size: 0.6rem;">SUCCESS</span>
+                        </div>
+                    </li>
+                    {% empty %}
+                    <li class="list-group-item bg-dark border-secondary text-center text-muted">No payments recorded.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
